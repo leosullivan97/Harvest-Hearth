@@ -1,3 +1,5 @@
+Group Name: Bario Studios
+
 Game Name: Harvest Hearth
 
 Game Description:
@@ -8,26 +10,58 @@ The game includes a variety of tools, each serving a unique purpose—tilling th
 
 A CS 596 concept featured in Harvest Hearth is the implementation of a state machine to manage the behavior and interactions of farm animals. Animals have a hunger status, which affects how they move and how the player can interact with them. Depending on their hunger level, they may walk slowly, move faster, or stop entirely. If time allows, we also plan to implement a custom 2D shader, such as animated water effects, to enhance the visual atmosphere.
 
+Controls:
+---------------------------
+
+Movement
+  - W / A / S / D or Arrow Keys     Move the player character
+  - Left / Right movement           Flips the player sprite based on direction
+
+Tool Use
+  - Left Click, E, or Space         Use selected tool (e.g., plough, water, plant, harvest)
+
+Tool Switching
+  - Tab                             Cycle through tools (Plough → Watering Can → Seeds → Basket)
+  - 1 / 2 / 3 / 4                   Direct tool selection:
+      1 - Plough
+      2 - Watering Can
+      3 - Seeds
+      4 - Basket
+
+Seed Selection
+  - Click seed in inventory UI      Switch to that seed for planting
+
+Inventory & Shop
+  - I                               Open/close player inventory
+  - B                               Open/close shop (Editor only)
+  - E or Space (near shop area)     Open shop
+
+Pause Menu
+  - Escape or P                     Toggle pause menu
+
+Sleep / End Day
+  - E / Space / Left Click (near bed)    End the day and trigger day transition
+
+Mouse Interaction
+  - Mouse Position                  Controls the tool indicator's position
+  - Note: Tool range is limited; indicator snaps to grid and is clamped within range
+
 Group Organization:
 ---------------------------
 While all team members contributed collaboratively, here is an overview of completed tasks and upcoming responsibilities for each member:
 
 Juan C
-Completed: Camera system and game boundaries
-Next: Implementing the grid system for tillable/farmable land; exploring fishing mechanics
+Completed: Camera system, game boundaries, main menu, area transitions, bed functionality, and audio implementation.
 
 Kai C
-Completed: Player animation and movement system
-Next: Designing and implementing the farm animal state machine
+Completed: Player animation and movement system.
+Next: Finding animal sprite(s), designing, and implementing the farm animal state machine.
 
 Adam G
-Completed: Ploughing mechanic and tool functionality
-Next: Finalizing complete tool interactions and behaviors
+Completed: General tool management, including ploughing mechanic, watering can functionality, seed planting, and basket harvesting.
 
 Leo S
-Completed: User interface development and UI organization
-Next: Developing the player inventory and shop systems
+Completed: Crop growth system, time mechanic, tillable land grid system, player inventory, currency system, and shop functionality.
 
 Mark T
-Completed: Art direction, sprite assets, and main map prototype
-Next: Finding farm animal sprites; designing interiors for the player’s house and the town shop
+Completed: Art direction, sprite assets, main map prototype, player house interior, and player UI overlay.
