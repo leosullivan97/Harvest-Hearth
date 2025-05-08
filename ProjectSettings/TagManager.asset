@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Destination
   layers:
   - Default
   - TransparentFX
@@ -44,6 +45,11 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Water
+    uniqueID: 3676708405
+    locked: 0
+  - name: Floor
+    uniqueID: 182144453
   - name: Crops
     uniqueID: 3094883001
     locked: 0
