@@ -12,8 +12,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - World Objects
+  - Grid Blockers
   - 
   - 
   - 
@@ -50,6 +50,8 @@ TagManager:
     locked: 0
   - name: Floor
     uniqueID: 182144453
+  - name: Crops
+    uniqueID: 3094883001
     locked: 0
   - name: Player
     uniqueID: 3600067251
