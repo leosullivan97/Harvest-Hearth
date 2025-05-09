@@ -35,6 +35,10 @@ public class AudioManager : MonoBehaviour
     {
         if (!isPaused)
         {
+            if (currentTrack == -1)
+            {
+                return;
+            }
             if (!bgMusic[currentTrack].isPlaying)
             {
                 PlayNextBGM();
