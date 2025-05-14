@@ -50,11 +50,15 @@ TagManager:
     locked: 0
   - name: Floor
     uniqueID: 182144453
+    locked: 0
   - name: Crops
     uniqueID: 3094883001
     locked: 0
   - name: Player
     uniqueID: 3600067251
+    locked: 0
+  - name: Tools
+    uniqueID: 3976722667
     locked: 0
   m_RenderingLayers:
   - Default

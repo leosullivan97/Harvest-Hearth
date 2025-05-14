@@ -11,13 +11,28 @@ public class PlayerController : MonoBehaviour
     public InputActionReference moveInput, actionInput;
 
     public Animator playerAnim;
+    public bool isFishing;
+    public bool poleBack;
+    public bool throwBobber;
+    public Transform fishingPoint;
+    public GameObject bobber;
+
+    public float targetTime = 0.0f;
+    public float savedTargetTime;
+    public float extraBobberDistance;
+
+    public GameObject fishGame;
+
+    public float timeTillCatch = 0.0f;
+    public bool winnerAnim;
 
     public enum ToolType
     {
         plough,
         wateringCan,
         seeds,
-        basket
+        basket,
+        fishingRod
     }
 
     public ToolType currentTool;
@@ -48,6 +63,13 @@ public class PlayerController : MonoBehaviour
     {
         UIController.instance.SwitchTool((int)currentTool);
         UIController.instance.SwitchSeed(seedCropType);
+
+        isFishing = false;
+        fishGame.SetActive(false);
+        throwBobber = false;
+        targetTime = 0.0f;
+        savedTargetTime = 0.0f;
+        extraBobberDistance = 0.0f;
     }
 
     private void Update()
@@ -62,6 +84,7 @@ public class PlayerController : MonoBehaviour
                 playerRB.linearVelocity = Vector2.zero;
                 return;
             }
+
         }
 
         // Lock movement while using a tool
@@ -100,6 +123,7 @@ public class PlayerController : MonoBehaviour
         if (Keyboard.current.digit2Key.wasPressedThisFrame) { currentTool = ToolType.wateringCan; hasSwitchedTool = true; }
         if (Keyboard.current.digit3Key.wasPressedThisFrame) { currentTool = ToolType.seeds; hasSwitchedTool = true; }
         if (Keyboard.current.digit4Key.wasPressedThisFrame) { currentTool = ToolType.basket; hasSwitchedTool = true; }
+        if (Keyboard.current.digit5Key.wasPressedThisFrame) { currentTool = ToolType.fishingRod; hasSwitchedTool = true; }
 
         if (hasSwitchedTool)
         {
@@ -135,8 +159,84 @@ public class PlayerController : MonoBehaviour
         {
             toolIndicator.position = new Vector3(0f, 0f, -20f);
         }
+
+        // Logic for fishing rod tool
+        if (currentTool == ToolType.fishingRod){
+            if (Input.GetKeyDown(KeyCode.Space)){
+                Debug.Log("You are using the fishing rod!");
+            }
+
+            if (Input.GetKeyDown(KeyCode.Space) && isFishing == false && winnerAnim == false){
+                poleBack = true;
+            }
+
+            if (isFishing == true){
+                timeTillCatch += Time.deltaTime;
+                if (timeTillCatch >= 3){
+                    fishGame.SetActive(true);
+                }
+            }
+
+            if (Input.GetKeyUp(KeyCode.Space) && isFishing == false && winnerAnim == false){
+                poleBack = false;
+                isFishing = true;
+                throwBobber = true;
+                if (targetTime >= 3){
+                    extraBobberDistance += 3;
+                } else{
+                    extraBobberDistance += targetTime;
+                }
+            }
+
+            Vector3 temp = new Vector3(extraBobberDistance, 0, 0);
+            fishingPoint.transform.position += temp;
+
+            if (poleBack == true){
+                playerAnim.Play("playerSwingBack");
+                savedTargetTime = targetTime;
+                targetTime += Time.deltaTime;
+            }
+
+            if (isFishing == true){
+                if (throwBobber == true){
+                    Instantiate(bobber, fishingPoint.position, fishingPoint.rotation, transform);
+                    fishingPoint.transform.position -= temp;
+                    throwBobber = false;
+                    targetTime = 0.0f;
+                    savedTargetTime = 0.0f;
+                    extraBobberDistance = 0.0f;
+                }
+                playerAnim.Play("playerFishing");
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.P) && timeTillCatch <= 3){
+            playerAnim.Play("playerStill");
+            poleBack = false;
+            throwBobber = false;
+            isFishing = false;
+            timeTillCatch = 0;
+        }
+
     }
 
+    public void fishGameWon(){
+        playerAnim.Play("playerWonFish");
+        fishGame.SetActive(false);
+        poleBack = false;
+        throwBobber = false;
+        isFishing = false;
+        timeTillCatch = 0;
+    }
+
+    public void fishGameLossed(){
+        playerAnim.Play("playerStill");
+        fishGame.SetActive(false);
+        poleBack = false;
+        throwBobber = false;
+        isFishing = false;
+        timeTillCatch = 0;
+    }
     // Applies the selected tool to the targeted block
     private void UseTool()
     {
