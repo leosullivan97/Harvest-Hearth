@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
@@ -7,27 +8,20 @@ public class PlayerController : MonoBehaviour
 
     public Rigidbody2D playerRB;
     public float moveSpeed;
-
     public InputActionReference moveInput, actionInput;
-
     public Animator playerAnim;
-    public bool isFishing;
-    public bool poleBack;
-    public bool throwBobber;
-    public Transform fishingPoint;
-    public GameObject bobber;
 
-    public float targetTime = 0.0f;
-    public float savedTargetTime;
-    public float extraBobberDistance;
+    public float minBiteDelay = 3f; // Minimum time before bite
+    public float maxBiteDelay = 7f; // Maximum time before bite
 
-    public GameObject fishGame;
+    public Sprite[] spriteList;
+    public Material[] materialList;
+    public SpriteRenderer spriteRenderer;
 
-    public float timeTillCatch = 0.0f;
-    public bool winnerAnim;
+    bool isFishing = false;
+    bool isOverWater = false;
 
-    public enum ToolType
-    {
+    public enum ToolType{
         plough,
         wateringCan,
         seeds,
@@ -47,6 +41,7 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+
         if (instance == null)
         {
             instance = this;
@@ -64,12 +59,7 @@ public class PlayerController : MonoBehaviour
         UIController.instance.SwitchTool((int)currentTool);
         UIController.instance.SwitchSeed(seedCropType);
 
-        isFishing = false;
-        fishGame.SetActive(false);
-        throwBobber = false;
-        targetTime = 0.0f;
-        savedTargetTime = 0.0f;
-        extraBobberDistance = 0.0f;
+    
     }
 
     private void Update()
@@ -154,89 +144,81 @@ public class PlayerController : MonoBehaviour
                 Mathf.FloorToInt(toolIndicator.position.y) + 0.5f,
                 0f
             );
+
+        // Check for water at the tool indicator position
+        Collider2D[] colliders = Physics2D.OverlapPointAll(toolIndicator.position);
+        
+        isOverWater = false;
+
+        foreach (Collider2D collider in colliders){
+            if (collider.CompareTag("Water")){
+                isOverWater = true;
+                break;
+            }
+        }
+
         }
         else
         {
             toolIndicator.position = new Vector3(0f, 0f, -20f);
         }
 
+
         // Logic for fishing rod tool
-        if (currentTool == ToolType.fishingRod){
-            if (Input.GetKeyDown(KeyCode.Space)){
-                Debug.Log("You are using the fishing rod!");
-            }
-
-            if (Input.GetKeyDown(KeyCode.Space) && isFishing == false && winnerAnim == false){
-                poleBack = true;
-            }
-
-            if (isFishing == true){
-                timeTillCatch += Time.deltaTime;
-                if (timeTillCatch >= 3){
-                    fishGame.SetActive(true);
-                }
-            }
-
-            if (Input.GetKeyUp(KeyCode.Space) && isFishing == false && winnerAnim == false){
-                poleBack = false;
-                isFishing = true;
-                throwBobber = true;
-                if (targetTime >= 3){
-                    extraBobberDistance += 3;
-                } else{
-                    extraBobberDistance += targetTime;
-                }
-            }
-
-            Vector3 temp = new Vector3(extraBobberDistance, 0, 0);
-            fishingPoint.transform.position += temp;
-
-            if (poleBack == true){
-                playerAnim.Play("playerSwingBack");
-                savedTargetTime = targetTime;
-                targetTime += Time.deltaTime;
-            }
-
-            if (isFishing == true){
-                if (throwBobber == true){
-                    Instantiate(bobber, fishingPoint.position, fishingPoint.rotation, transform);
-                    fishingPoint.transform.position -= temp;
-                    throwBobber = false;
-                    targetTime = 0.0f;
-                    savedTargetTime = 0.0f;
-                    extraBobberDistance = 0.0f;
-                }
-                playerAnim.Play("playerFishing");
+        if (currentTool == ToolType.fishingRod && isOverWater == true){
+            if (Input.GetMouseButtonDown(0) && isFishing == false){
+                    playerAnim.SetBool("isSwinging", true);
+                    Debug.Log("You are holding the fishing rod!");
+            } else if ( Input.GetMouseButtonUp(0) && isFishing == false){
+                    playerAnim.SetBool("isSwinging", false);
+                    playerAnim.SetTrigger("isFishing");
+                    playerAnim.SetBool("isFishIdle", true);
+                    Debug.Log("You released the fishing rod!");
+                    StartCoroutine(WaitAndBite());       
+            } else if (Input.GetMouseButtonDown(0) && isFishing == true){
+                    StopCoroutine("WaitAndBite");
+                    playerAnim.SetBool("isBiting", false);
+                    playerAnim.SetTrigger("isCaught");
+                    StartCoroutine("Wait2Seconds");
+                    
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.P) && timeTillCatch <= 3){
-            playerAnim.Play("playerStill");
-            poleBack = false;
-            throwBobber = false;
-            isFishing = false;
-            timeTillCatch = 0;
+        if (isFishing == true){
+            playerRB.linearVelocity = Vector2.zero;
         }
 
+    }   
+
+    // Coroutine for Waiting for a fish 
+    IEnumerator WaitAndBite(){
+        isFishing = true;
+        float delay = Random.Range(minBiteDelay, maxBiteDelay);
+
+        yield return new WaitForSeconds(delay);
+
+        int randomFish = Random.Range(0, 4);
+        int randomMaterial = Random.Range(0, 4);
+
+        spriteRenderer.sprite = spriteList[randomFish];
+        spriteRenderer.material = materialList[randomMaterial];
+
+        BiteEvent();
     }
 
-    public void fishGameWon(){
-        playerAnim.Play("playerWonFish");
-        fishGame.SetActive(false);
-        poleBack = false;
-        throwBobber = false;
-        isFishing = false;
-        timeTillCatch = 0;
+    // Plays the appropriate animation for fish biting
+    private void BiteEvent(){
+        playerAnim.SetBool("isFishIdle", false);
+        playerAnim.SetBool("isBiting", true);
     }
 
-    public void fishGameLossed(){
-        playerAnim.Play("playerStill");
-        fishGame.SetActive(false);
-        poleBack = false;
-        throwBobber = false;
+    // Fishing Rod Cooldown (Breaks rod if we remove it 0-0)
+    IEnumerator Wait2Seconds(){
+        yield return new WaitForSeconds(2);
         isFishing = false;
-        timeTillCatch = 0;
     }
+    
+
     // Applies the selected tool to the targeted block
     private void UseTool()
     {
