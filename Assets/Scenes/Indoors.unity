@@ -2122,11 +2122,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1585328283967423291, guid: 3f1f3df8990bb4f45b6856498bdcae15, type: 3}
       propertyPath: sceneToLoad
-      value: Main
+      value: DemoWorld
       objectReference: {fileID: 0}
     - target: {fileID: 1585328283967423291, guid: 3f1f3df8990bb4f45b6856498bdcae15, type: 3}
       propertyPath: transitionName
-      value: Main-Indoors
+      value: DemoWorld-Indoors
       objectReference: {fileID: 0}
     - target: {fileID: 3832292412128299111, guid: 3f1f3df8990bb4f45b6856498bdcae15, type: 3}
       propertyPath: m_Name
